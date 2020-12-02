@@ -4,6 +4,7 @@
 #+REVEAL_THEME: serif
 #+REVEAL_TITLE_SLIDE: <h1>%t</h1>
 #+REVEAL_TITLE_SLIDE: <h2>%s</h2>
+#+REVEAL_TITLE_SLIDE: <h4>By: %a</h4>
 
 #+Title: Agda
 #+Subtitle: Types of types of types of types...
@@ -36,3 +37,14 @@ andSemigroup = record
   ; associative = andAssociative
   }
 #+END_SRC
+
+* Agda introduction
+Agda is a *dependently typed* language with *pure, total functions*.
+** Meaning...
++ Depdently typed :: Types contain values
++ Pure functions :: No side effects
++ Total :: Functions must terminate and be defined for every possible input
+#+BEGIN_NOTES
+Functions in Agda area like functions in mathematics.
+Termination matters for proofs.
+#+END_NOTES

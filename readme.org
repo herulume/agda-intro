@@ -1,0 +1,38 @@
+#+OPTIONS: num:nil toc:nil
+
+#+REVEAL_TRANS: linear
+#+REVEAL_THEME: serif
+#+REVEAL_TITLE_SLIDE: <h1>%t</h1>
+#+REVEAL_TITLE_SLIDE: <h2>%s</h2>
+
+#+Title: Agda
+#+Subtitle: Types of types of types of types...
+#+Author: @herulume
+
+* whoami
+  * Eduardo Jorge Barbosa
+  * Masters Student
+  * Effectful component-based programming: the case of time
+** Where does Agda fit in?
+   #+ATTR_HTML: :height 50%, :width 50%
+   [[file:./images/agda.png]]
+** Where does Agda fit in?
+- Formalize proofs
+#+BEGIN_SRC haskell
+andAssociative : ∀ a b c → (a ∧ b) ∧ c ≡ a ∧ (b ∧ c)
+andAssociative false b c = refl
+andAssociative true b c = refl
+#+END_SRC
+- Formalize concepts
+#+BEGIN_SRC haskell
+record Semigroup (a : Set) : Set where
+  field
+    _⊛_ : a → a → a
+    associative : ∀ a b c → (a ⊛ b) ⊛ c ≡ a ⊛ (b ⊛ c)
+
+andSemigroup : Semigroup Bool
+andSemigroup = record
+  { _⊛_ = _∧_
+  ; associative = andAssociative
+  }
+#+END_SRC

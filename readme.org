@@ -18,13 +18,13 @@
    #+ATTR_HTML: :height 50%, :width 50%
    [[file:./images/agda.png]]
 ** Where does Agda fit in?
-- Formalize proofs
++ Formalize proofs
 #+BEGIN_SRC haskell
 andAssociative : ∀ a b c → (a ∧ b) ∧ c ≡ a ∧ (b ∧ c)
 andAssociative false b c = refl
 andAssociative true b c = refl
 #+END_SRC
-- Formalize concepts
++ Formalize concepts
 #+BEGIN_SRC haskell
 record Semigroup (a : Set) : Set where
   field
@@ -38,13 +38,54 @@ andSemigroup = record
   }
 #+END_SRC
 
+#+BEGIN_NOTES
+Compare with Haskell's syntax (: vs ::, unicode, laws in the records, no typeclasses)
+#+END_NOTES
+
+* *Types*, in programming languages, are *propositions*, in intuitionistic logic, and *objects* of a cartesian closed category.
+** Types as propositions, programs as proofs
++ Curry-Howard isomorphism
++ Curry-Howard-Lambek correspondence
+** Types as propositions, programs as proofs
++ Types = Propositions
++ Programs = Proofs
+
+* Why not Haskell?
+** Haskell's type system
+Corresponds to propositional logic
+** Is inconsistent as a logic
+#+BEGIN_SRC haskell
+f :: a -> b
+f = undefined
+#+END_SRC
+** Functions can be non-terminating
+#+BEGIN_SRC haskell
+brexit :: ⊥
+brexit = brexit
+#+END_SRC
+
 * Agda introduction
 Agda is a *dependently typed* language with *pure, total functions*.
-** Meaning...
-+ Depdently typed :: Types contain values
-+ Pure functions :: No side effects
-+ Total :: Functions must terminate and be defined for every possible input
+
 #+BEGIN_NOTES
 Functions in Agda area like functions in mathematics.
+#+END_NOTES
+** Meaning
++ Pure functions :: The same inputs yield the same outputs (no side effects)
+** Meaning
++ Total :: Functions must terminate and be defined for every possible input
+
+#+BEGIN_SRC haskell
+-- Brilliant example by Conor McBride
+brexit : ⊥
+brexit = brexit
+#+END_SRC
+
+#+BEGIN_NOTES
 Termination matters for proofs.
+#+END_NOTES
+** Meaning
++ Dependently typed :: Types may contain values
+
+#+BEGIN_NOTES
 #+END_NOTES

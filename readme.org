@@ -60,8 +60,7 @@ f = undefined
 #+END_SRC
 ** Functions can be non-terminating
 #+BEGIN_SRC haskell
-brexit :: ⊥
-brexit = brexit
+f = f
 #+END_SRC
 
 * Agda introduction
@@ -85,7 +84,138 @@ brexit = brexit
 Termination matters for proofs.
 #+END_NOTES
 ** Meaning
-+ Dependently typed :: Types may contain values
++ Dependently typed :: Types may depend on values
+
+#+BEGIN_SRC haskell
++-identityʳ : ∀ (m : ℕ) → m + zero ≡ m
+#+END_SRC
+
+* Syntax
+** Set
+The type of all (boring) types
+** Inductive types
+#+BEGIN_SRC haskell
+data Nat : Set where
+  zero : Nat
+  suc  : Nat → Nat
+#+END_SRC
++ GADTs in Haskell
++ User decimal numbers
+#+BEGIN_SRC haskell
+  {-# BUILTIN NATURAL Nat #-}
+#+END_SRC
+** A simple function
+#+BEGIN_SRC haskell
+×-comm : (A B : Set) → (A × B) → (B × A)
+×-comm A B (a , b) = (b , a)
+#+END_SRC
++ Named arguments!
+** Postulate
+#+BEGIN_SRC haskell
+postulate A B : Set
+
+×-comm : (A × B) → (B × A)
+×-comm (a , b) = (b , a)
+#+END_SRC
 
 #+BEGIN_NOTES
+Coq style
 #+END_NOTES
+** Implicit arguments
+#+BEGIN_SRC haskell
+singleton : {A : Set} → A → List A
+
+singleton true
+singleton {𝔹} true
+#+END_SRC
+** Infix notation
+#+BEGIN_SRC haskell
+_+_ : Nat → Nat → Nat
+zero  + m = m
+suc n + m = suc (n + m)
+
+ 3 + 4
+ 3 +_
+#+END_SRC
+
+#+BEGIN_SRC haskell
+if_then_else_ : {A : Set} → Bool → A → A → A
+if true then x else y = x
+if false then x else y = y
+#+END_SRC
+** Records
+#+BEGIN_SRC haskell
+record Pair (A B : Set) : Set where
+  constructor _,_
+  field
+    fst : A
+    snd : B
+
+make-pair : {A B : Set} → A → B → Pair A B
+make-pair a b = record { fst = a ; snd = b }
+
+make-pair' : {A B : Set} → A → B → Pair A B
+make-pair' a b = a , b
+
+proj₁ : {A B : Set} → Pair A B → A
+proj₁ p = Pair.fst p
+
+proj₁' : {A B : Set} → Pair A B → A
+proj₁' record { fst = a } = p
+#+END_SRC
+** Co-pattern matching
+#+BEGIN_SRC haskell
+p23 : Pair Nat Nat
+p23 = record { fst = 2; snd = 3 }
+
+p24 : Pair Nat Nat
+Pair.fst p34 = 3
+Pair.snd p34 = 4
+#+END_SRC
+** Co-pattern and pattern matching
+#+BEGIN_SRC haskell
+record Pair (A B : Set) : Set where
+  field
+    fst : A
+    snd : B
+
+make-pair : {A B : Set} → A → B → Pair A B
+(Pair.fst) (make-pair x _) = x
+(Pair.snd) (make-pair _ y) = y
+#+END_SRC
+
+* Dependent types
+Types may depend on values!
+** Type checking
++ Values are allowed in dependent types
++ Equality of dependent types may require computations
++ Deciding type equality may involve deciding whether two arbitrary programs produce the same result
++ Type checking can be undecidable!
+** It's decidable in Agda
++ Force all programs to terminate
+** Back to the good stuff
+** First-order logic, quantifiers and oh my
+** Logic
++ First-order predicate logic extends propositional logic
++ Propositions may *depend* on terms
++ Can be used to formalize the axioms of set theory
+** Existential quantifier (Σ-type)
+Dependent products
+#+BEGIN_SRC haskell
+data Σ (A : Set) (B : A → Set) : Set where
+  ⟨_,_⟩ : (x : A) → B x → Σ A B
+#+END_SRC
+** Universal quantifiers (Π-type)
+An Haskell function
+#+BEGIN_SRC haskell
+a -> b
+#+END_SRC
+becomes
+#+BEGIN_SRC haskell
+(x : a) → b
+#+END_SRC
+** There's already notation but...
+#+BEGIN_SRC haskell
+data Π {A : Set} (A : Set) (B : A → Set) : Set where
+  Λ : ((a : A) → B a) → Π A B
+#+END_SRC

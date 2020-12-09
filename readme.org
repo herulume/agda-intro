@@ -168,7 +168,7 @@ proj₁' record { fst = a } = p
 p23 : Pair Nat Nat
 p23 = record { fst = 2; snd = 3 }
 
-p24 : Pair Nat Nat
+p34 : Pair Nat Nat
 Pair.fst p34 = 3
 Pair.snd p34 = 4
 #+END_SRC
@@ -179,10 +179,15 @@ record Pair (A B : Set) : Set where
     fst : A
     snd : B
 
-make-pair : {A B : Set} → A → B → Pair A B
-(Pair.fst) (make-pair x _) = x
+make-pair : {A : Set} → ℕ → A → Pair ℕ A
+(Pair.fst) (make-pair 0 _) = 4
+Pair.fst (make-pair (suc x) _) = x
 (Pair.snd) (make-pair _ y) = y
 #+END_SRC
+** Many useful concepts...
++ Co-induction
++ Reflection
++ Rewritting
 
 * Dependent types
 Types may depend on values!
@@ -218,4 +223,18 @@ becomes
 #+BEGIN_SRC haskell
 data Π {A : Set} (A : Set) (B : A → Set) : Set where
   Λ : ((a : A) → B a) → Π A B
+#+END_SRC
+
+* Quintessential example
+** Vector
+#+BEGIN_SRC haskell
+data Vec (A : Set) : Nat → Set where
+  []  : Vec A zero
+  _∷_ : {n : Nat} → A → Vec A n → Vec A (suc n)
+#+END_SRC
++ Indexed data type
+** Dependent pattern matching
+#+BEGIN_SRC haskell
+head : {n : _} {A : Set} → Vec A (suc n) → A
+head (x ∷ _) = x
 #+END_SRC

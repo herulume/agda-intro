@@ -90,7 +90,7 @@ Termination matters for proofs.
 +-identityʳ : ∀ (m : ℕ) → m + zero ≡ m
 #+END_SRC
 
-* Universe levels
+* Syntax
 ** Set
 The type of all boring types
 + Haskell's * (or TYPE)
@@ -100,36 +100,6 @@ Bool : Set
 Nat : Set
 List Bool : Set
 #+END_SRC
-** Russell's paradox
-+ The collection of all sets is not itself a set
-** This is false
-#+BEGIN_SRC haskell
-Set : Set
-#+END_SRC
-** Explicit universe levels to the rescue
-#+BEGIN_SRC haskell
-Set : Set₁
-Set₁ : Set₂
-Set₂ : Set₃
-...
-#+END_SRC
-** Universe Polymorphism
-#+BEGIN_SRC haskell
-open import Agda.Primitive
-
-data List {n : Level} (A : Set n) : Set n where
-  []   : List A
-  _::_ : A → List A → List A
-
-List Nat : Set
-List Set : Set₁
-List Set₁ : Set₂
-#+END_SRC
-
-
-* Syntax
-** Set
-The type of all boring types
 ** Inductive types
 #+BEGIN_SRC haskell
 data Nat : Set where
@@ -277,6 +247,43 @@ head : {n : _} {A : Set} → Vec A (suc n) → A
 head (x ∷ _) = x
 #+END_SRC
 
+
+* Universe levels
+** Set
+The type of all boring types
++ Haskell's * (or TYPE)
+
+#+BEGIN_SRC haskell
+Bool : Set
+Nat : Set
+List Bool : Set
+#+END_SRC
+** Russell's paradox
++ The collection of all sets is not itself a set
+** This is false
+#+BEGIN_SRC haskell
+Set : Set
+#+END_SRC
+** Explicit universe levels to the rescue
+#+BEGIN_SRC haskell
+Set : Set₁
+Set₁ : Set₂
+Set₂ : Set₃
+...
+#+END_SRC
+** Universe Polymorphism
+#+BEGIN_SRC haskell
+open import Agda.Primitive
+
+data List {n : Level} (A : Set n) : Set n where
+  []   : List A
+  _::_ : A → List A → List A
+
+List Nat : Set
+List Set : Set₁
+List Set₁ : Set₂
+#+END_SRC
+
 * Category Theory!
 ** A Category
 #+BEGIN_SRC haskell
@@ -314,19 +321,103 @@ record Functor (C : Category o ℓ e)
              → D [ F₁ f ≈ F₁ g ]
 #+END_SRC
 
-** Duration Monad
+* Small example
+** CP with Agda?
+** Some auxiliary definitions
 #+BEGIN_SRC haskell
-natDuration : Monad (Setoids 0ℓ 0ℓ)
-natDuration = monoid×-monad +-0-nat-monoid
+record True : Set where
 
-integerDuration : Monad (Setoids 0ℓ 0ℓ)
-integerDuration = monoid×-monad +-0-integer-monoid
+data _⊕_ (A B : Set) : Set where
+  inl : A → A ⊕ B
+  inr : B → A ⊕ B
 
-rationalDuration-sets : Monad (Setoids 0ℓ 0ℓ)
-rationalDuration-sets = monoid×-monad +-0-rational-monoid
+data _×_ (A B : Set) : Set where
+  _,_ : A → B → A × B
 
-Kᴰ : Category (suc 0ℓ) 0ℓ 0ℓ
-Kᴰ = Kleisli natDuration
+uncurry : {A B C : Set} → (A → B → C) → A × B → C
+uncurry f (x , x₁) = f x x₁
+
+const : {A B : Set} → A → B → A
+const x _ = x
+
+-- [_||_] : {A B C : Set} → (A → C) → (B → C) → A ⊕ B → C
+[ f || g ] (inl x) = f x
+[ f || g ] (inr y) = g y
 #+END_SRC
+** Polynomial Functors
+#+BEGIN_SRC haskell
+data Functor : Set₁ where
+  |Id|  : Functor
+  |K|   : Set → Functor
+  _|+|_ : Functor → Functor → Functor
+  _|*|_ : Functor → Functor → Functor
 
-* Questions?
+|1| = |K| True
+#+END_SRC
+** Polynomial Functors
+#+BEGIN_SRC haskell
+map : (F : Functor) {X Y : Set} → (X → Y) → [ F ] X → [ F ] Y
+map |Id| f x = f x
+map (|K| A) f x = x
+map (F |+| G) f (inl x) = inl (map F f x)
+map (F |+| G) f (inr x) = inr (map G f x)
+map (F |*| G) f (x , y) = map F f x , map G f y
+#+END_SRC
+** Decode function
+#+BEGIN_SRC haskell
+[_] : Functor → Set → Set
+[ |Id| ] X = X
+[ |K| A ] X = A
+[ F |+| G ] X = [ F ] X ⊕ [ G ] X
+[ F |*| G ] X = [ F ] X × [ G ] X
+#+END_SRC
+** Least fixed point
+#+BEGIN_SRC haskell
+data μ_ (F : Functor) : Set where
+  <_> : [ F ] (μ F) → μ F
+#+END_SRC
+** Lists
+#+BEGIN_SRC haskell
+ListF = λ A → |1| |+| (|K| A) |*| |Id|
+List = λ A → μ (ListF A)
+
+nil : {A : Set} → List A
+nil = < inl _ >
+
+cons : {A : Set} → A → List A → List A
+cons x xs = < inr (x , xs) >
+#+END_SRC
+** Catamorphisms
+#+BEGIN_SRC haskell
+cata : (F : Functor) {A : Set} → ([ F ] A → A) → μ F → A
+cata F φ < x > = φ (map F (cata' F φ) x)
+#+END_SRC
++ Can't verify termination!
+** Catamorphisms
+#+BEGIN_SRC haskell
+mapCata : ∀ {X} F G → ([ G ] X → X) → [ F ] (μ G) → [ F ] X
+mapCata |Id| G φ < x > = φ (mapCata G G φ x)
+mapCata (|K| A) G φ x = x
+mapCata (F |+| F₁) G φ (inl x) = inl (mapCata F G φ x)
+mapCata (F |+| F₁) G φ (inr x) = inr (mapCata F₁ G φ x)
+mapCata (F |*| F₁) G φ (x , x₁) =
+  mapCata F G φ x , mapCata F₁ G φ x₁
+
+⟨|_|⟩ : ∀ {F : Functor} {A : Set} → ([ F ] A → A) → μ F → A
+⟨|_|⟩ {F} φ < x > = φ (mapCata F F φ x)
+#+END_SRC
+** Foldr
+#+BEGIN_SRC haskell
+foldr : {A B : Set} → (A → B → B) → B → List A → B
+foldr f acc  = ⟨| φ |⟩ where
+  φ = [ const acc || uncurry f ]
+#+END_SRC
+** Foldr = id
+#+BEGIN_SRC haskell
+foldr=id' : ∀ {A} → (L : List A) → foldr cons nil L ≡ id L
+foldr=id' < inl _ > = refl
+foldr=id' < inr (x , xs) > with foldr=id xs
+foldr=id' < inr (x , < x₁ >) > | z =
+  cong (λ r → < inr (x , r) >) z
+#+END_SRC
+* Thank you!

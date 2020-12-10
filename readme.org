@@ -60,7 +60,7 @@ f = undefined
 #+END_SRC
 ** Functions can be non-terminating
 #+BEGIN_SRC haskell
-f = f
+let f = f
 #+END_SRC
 
 * Agda introduction
@@ -90,9 +90,46 @@ Termination matters for proofs.
 +-identityʳ : ∀ (m : ℕ) → m + zero ≡ m
 #+END_SRC
 
+* Universe levels
+** Set
+The type of all boring types
++ Haskell's * (or TYPE)
+
+#+BEGIN_SRC haskell
+Bool : Set
+Nat : Set
+List Bool : Set
+#+END_SRC
+** Russell's paradox
++ The collection of all sets is not itself a set
+** This is false
+#+BEGIN_SRC haskell
+Set : Set
+#+END_SRC
+** Explicit universe levels to the rescue
+#+BEGIN_SRC haskell
+Set : Set₁
+Set₁ : Set₂
+Set₂ : Set₃
+...
+#+END_SRC
+** Universe Polymorphism
+#+BEGIN_SRC haskell
+open import Agda.Primitive
+
+data List {n : Level} (A : Set n) : Set n where
+  []   : List A
+  _::_ : A → List A → List A
+
+List Nat : Set
+List Set : Set₁
+List Set₁ : Set₂
+#+END_SRC
+
+
 * Syntax
 ** Set
-The type of all (boring) types
+The type of all boring types
 ** Inductive types
 #+BEGIN_SRC haskell
 data Nat : Set where
@@ -100,10 +137,11 @@ data Nat : Set where
   suc  : Nat → Nat
 #+END_SRC
 + GADTs in Haskell
-+ User decimal numbers
+
 #+BEGIN_SRC haskell
   {-# BUILTIN NATURAL Nat #-}
 #+END_SRC
++ User decimal numbers
 ** A simple function
 #+BEGIN_SRC haskell
 ×-comm : (A B : Set) → (A × B) → (B × A)
@@ -154,14 +192,14 @@ record Pair (A B : Set) : Set where
 make-pair : {A B : Set} → A → B → Pair A B
 make-pair a b = record { fst = a ; snd = b }
 
-make-pair' : {A B : Set} → A → B → Pair A B
-make-pair' a b = a , b
+-- make-pair : {A B : Set} → A → B → Pair A B
+-- make-pair a b = a , b
 
 proj₁ : {A B : Set} → Pair A B → A
 proj₁ p = Pair.fst p
 
-proj₁' : {A B : Set} → Pair A B → A
-proj₁' record { fst = a } = p
+-- proj₁ : {A B : Set} → Pair A B → A
+-- proj₁ record { fst = a } = p
 #+END_SRC
 ** Co-pattern matching
 #+BEGIN_SRC haskell

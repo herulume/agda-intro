@@ -195,7 +195,7 @@ Pair.snd (make-pair _ y) = y
 ** Many useful concepts...
 + Co-induction
 + Reflection
-+ Rewritting
++ Rewriting
 
 * Dependent types
 Types may depend on values!

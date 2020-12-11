@@ -282,43 +282,6 @@ List Set : Set₁
 List Set₁ : Set₂
 #+END_SRC
 
-* Category Theory!
-** A Category
-#+BEGIN_SRC haskell
-record Category (o ℓ e : Level) : Set (suc (o ⊔ ℓ ⊔ e)) where
-  eta-equality
-  field
-    Obj : Set o
-    _⇒_ : Rel Obj ℓ
-    _≈_ : ∀ {A B} → Rel (A ⇒ B) e
-
-    id  : ∀ {A} → (A ⇒ A)
-    _∘_ : ∀ {A B C} → (B ⇒ C) → (A ⇒ B) → (A ⇒ C)
-#+END_SRC
-** A Category
-#+BEGIN_SRC haskell
-assoc : ∀ {A B C D} {f : A ⇒ B} {g : B ⇒ C} {h : C ⇒ D}
-      → (h ∘ g) ∘ f ≈ h ∘ (g ∘ f)
-
-sym-assoc : ∀ {A B C D} {f : A ⇒ B} {g : B ⇒ C} {h : C ⇒ D}
-          → h ∘ (g ∘ f) ≈ (h ∘ g) ∘ f
-#+END_SRC
-** Functor
-#+BEGIN_SRC haskell
-record Functor (C : Category o ℓ e)
-               (D : Category o′ ℓ′ e′) : Set ... where
-  field
-    F₀ : C.Obj → D.Obj
-    F₁ : ∀ {A B} (f : C [ A , B ]) → D [ F₀ A , F₀ B ]
-
-    identity     : ∀ {A} → D [ F₁ (C.id {A}) ≈ D.id ]
-    homomorphism : ∀ {X Y Z} {f : C [ X , Y ]} {g : C [ Y , Z ]}
-                 → D [ F₁ (C [ g ∘ f ]) ≈ D [ F₁ g ∘ F₁ f ] ]
-    F-resp-≈ : ∀ {A B} {f g : C [ A , B ]}
-             → C [ f ≈ g ]
-             → D [ F₁ f ≈ F₁ g ]
-#+END_SRC
-
 * Small example
 ** CP with Agda?
 ** Some auxiliary definitions

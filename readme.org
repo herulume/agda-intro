@@ -176,9 +176,9 @@ proj₁ p = Pair.fst p
 p23 : Pair Nat Nat
 p23 = record { fst = 2; snd = 3 }
 
-p34 : Pair Nat Nat
-Pair.fst p34 = 3
-Pair.snd p34 = 4
+p23 : Pair Nat Nat
+Pair.fst p23 = 2
+Pair.snd p23 = 3
 #+END_SRC
 ** Co-pattern and pattern matching
 #+BEGIN_SRC haskell
@@ -188,9 +188,9 @@ record Pair (A B : Set) : Set where
     snd : B
 
 make-pair : {A : Set} → ℕ → A → Pair ℕ A
-(Pair.fst) (make-pair 0 _) = 4
+Pair.fst (make-pair 0 _) = 4
 Pair.fst (make-pair (suc x) _) = x
-(Pair.snd) (make-pair _ y) = y
+Pair.snd (make-pair _ y) = y
 #+END_SRC
 ** Many useful concepts...
 + Co-induction

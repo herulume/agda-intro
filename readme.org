@@ -225,7 +225,16 @@ Dependent products
 #+BEGIN_SRC haskell
 data Σ (A : Set) (B : A → Set) : Set where
   ⟨_,_⟩ : (x : A) → B x → Σ A B
-#+END_SRC
+#+end_src
+** An example
+#+BEGIN_SRC haskell
+dif : (m : ℕ) → (np : Σ ℕ (λ n → m ≥ n))
+    → Σ ℕ (λ r → m ≡ (proj₁ np) + r)
+dif zero (zero , _) = zero , refl
+dif (suc m) (zero , _) = suc m , refl
+dif (suc m) (suc n , s≤s m>=n) with dif m (n , m>=n)
+... | mn , refl = mn , refl
+#+end_src
 ** Universal quantifiers (Π-type)
 An Haskell function
 #+BEGIN_SRC haskell

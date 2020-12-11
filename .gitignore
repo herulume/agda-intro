@@ -1,1 +1,4 @@
 *.html
+/.auctex-auto/
+*.pdf
+*.tex

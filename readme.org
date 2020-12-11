@@ -273,8 +273,6 @@ Set₂ : Set₃
 #+END_SRC
 ** Universe Polymorphism
 #+BEGIN_SRC haskell
-open import Agda.Primitive
-
 data List {n : Level} (A : Set n) : Set n where
   []   : List A
   _::_ : A → List A → List A

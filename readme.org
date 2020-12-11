@@ -87,7 +87,7 @@ Termination matters for proofs.
 + Dependently typed :: Types may depend on values
 
 #+BEGIN_SRC haskell
-+-identityʳ : ∀ (m : ℕ) → m + zero ≡ m
++-identityʳ : (m : ℕ) → m + zero ≡ m
 #+END_SRC
 
 * Syntax
@@ -135,6 +135,14 @@ singleton : {A : Set} → A → List A
 
 singleton true
 singleton {𝔹} true
+#+END_SRC
+** TODO Need a better name
+#+BEGIN_SRC haskell
+singleton : {A : Set} → A → List A
+
+singleton : {A : _} → A → List A
+
+singleton : ∀ {A} → A → List A
 #+END_SRC
 ** Infix notation
 #+BEGIN_SRC haskell
@@ -243,7 +251,7 @@ data Vec (A : Set) : Nat → Set where
 + Indexed data type
 ** Dependent pattern matching
 #+BEGIN_SRC haskell
-head : {n : _} {A : Set} → Vec A (suc n) → A
+head : ∀ {n} {A : Set} → Vec A (suc n) → A
 head (x ∷ _) = x
 #+END_SRC
 
@@ -258,7 +266,7 @@ Bool : Set
 Nat : Set
 List Bool : Set
 #+END_SRC
-** Russell's paradox
+** From the Russell's paradox follows
 + The collection of all sets is not itself a set
 ** This is false
 #+BEGIN_SRC haskell

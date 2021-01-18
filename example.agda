@@ -96,7 +96,7 @@ _++_  = ?
 -}
 
 {-
-headᵛ : ∀ {l} {A : Set l} {n : ℕ} → Vec A (succ n) → A
+headᵛ : ∀ {l} {A : Set l} {n : ℕ} → Vec A (suc n) → A
 headᵛ = ?
 -}
 

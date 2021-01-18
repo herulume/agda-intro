@@ -18,13 +18,7 @@
    #+ATTR_HTML: :height 50%, :width 50%
    [[file:./images/agda.png]]
 ** Where does Agda fit in?
-+ Formalize proofs
-#+BEGIN_SRC haskell
-andAssociative : ∀ a b c → (a ∧ b) ∧ c ≡ a ∧ (b ∧ c)
-andAssociative false b c = refl
-andAssociative true b c = refl
-#+END_SRC
-+ Formalize concepts
++ Formalise concepts - Programming language
 #+BEGIN_SRC haskell
 record Semigroup (a : Set) : Set where
   field
@@ -37,6 +31,16 @@ andSemigroup = record
   ; associative = andAssociative
   }
 #+END_SRC
+** Where does Agda fit in?
++ Formalise proofs - Proof assistant
+#+BEGIN_SRC haskell
+andAssociative : ∀ a b c → (a ∧ b) ∧ c ≡ a ∧ (b ∧ c)
+andAssociative false b c = refl
+andAssociative true b c = refl
+#+END_SRC
+**  Agda
++ Programming language
++ Proof assistant
 
 #+BEGIN_NOTES
 Compare with Haskell's syntax (: vs ::, unicode, laws in the records, no typeclasses)
@@ -49,6 +53,16 @@ Compare with Haskell's syntax (: vs ::, unicode, laws in the records, no typecla
 ** Types as propositions, programs as proofs
 + Types = Propositions
 + Programs = Proofs
+** Logic vs Haskell vs Agda
+| a ∨ b   | Either a b   | Either A B  |
+| a ∧ b   | (a, b)       | A × B       |
+| a => b  | a -> b       | A → B       |
+| a <=> b | isomorphism  | isomorphism |
+| False   | Void         | False       |
+| True    | ()           | True        |
+| ¬a      | a -> Void    | A → False   |
+| ∀       | forall       | Π           |
+| ∃       | clever trick | Σ           |
 
 * Why not Haskell?
 ** Haskell's type system
@@ -56,11 +70,14 @@ Corresponds to propositional logic
 ** Is inconsistent as a logic
 #+BEGIN_SRC haskell
 f :: a -> b
-f = undefined
+f = unsafeCoerce
+
+what :: a -> b
+what = undefined
 #+END_SRC
 ** Functions can be non-terminating
 #+BEGIN_SRC haskell
-let f = f
+let brexit = brexit
 #+END_SRC
 
 * Agda introduction
@@ -93,31 +110,60 @@ Termination matters for proofs.
 * Syntax
 ** Set
 The type of all boring types
-+ Haskell's * (or TYPE)
-
 #+BEGIN_SRC haskell
 Bool : Set
 Nat : Set
 List Bool : Set
 #+END_SRC
-** Inductive types
++ Haskell's * (or TYPE)
+#+BEGIN_SRC haskell
+Bool :: *
+Int :: *
+[Bool] :: *
+#+END_SRC
+** Algebraic data types
 #+BEGIN_SRC haskell
 data Nat : Set where
   zero : Nat
   suc  : Nat → Nat
 #+END_SRC
 + GADTs in Haskell
-
+** Algebraic data types
 #+BEGIN_SRC haskell
-  {-# BUILTIN NATURAL Nat #-}
+data Nat : Set where
+  zero : Nat
+  suc  : Nat → Nat
 #+END_SRC
-+ User decimal numbers
++ GADTs in Haskell
+#+BEGIN_SRC haskell
+{-# LANGUAGE GADTs #-}
+
+data Nat = Zero | Suc Nat
+
+data Nat where
+  Zero :: Nat
+  Suc  :: Nat -> Nat
+#+END_SRC
+** A simple function
+#+BEGIN_SRC haskell
+×-comm : (A : Set) → (B : Set) → (A × B) → (B × A)
+×-comm A B (a , b) = (b , a)
+#+END_SRC
 ** A simple function
 #+BEGIN_SRC haskell
 ×-comm : (A B : Set) → (A × B) → (B × A)
 ×-comm A B (a , b) = (b , a)
 #+END_SRC
-+ Named arguments!
+** A simple function
+#+BEGIN_SRC haskell
+×-comm : (A B : Set) → (A × B) → (B × A)
+×-comm _ _ (a , b) = (b , a)
+#+END_SRC
++ Haskell's version
+#+BEGIN_SRC haskell
+x-comm :: (a, b) -> (b, a)
+x-comm (a, b) = (b, a)
+#+END_SRC
 ** Postulate
 #+BEGIN_SRC haskell
 postulate A B : Set
@@ -131,20 +177,22 @@ Coq style
 #+END_NOTES
 ** Implicit arguments
 #+BEGIN_SRC haskell
-singleton : {A : Set} → A → List A
-
-singleton true
-singleton {𝔹} true
+×-comm : {A B : Set} → (A × B) → (B × A)
+×-comm (a , b) = (b, a)
 #+END_SRC
-** TODO Need a better name
+** Implicit types
 #+BEGIN_SRC haskell
-singleton : {A : Set} → A → List A
-
-singleton : {A : _} → A → List A
-
-singleton : ∀ {A} → A → List A
+×-comm : {A B : Set} → ...
 #+END_SRC
-** Infix notation
+** Implicit types
+#+BEGIN_SRC haskell
+×-comm : {A B : Set} → ...
+
+×-comm : {A B : _} → ...
+
+×-comm : ∀ {A B} → ...
+#+END_SRC
+** Operators
 #+BEGIN_SRC haskell
 _+_ : Nat → Nat → Nat
 zero  + m = m
@@ -159,6 +207,9 @@ if_then_else_ : {A : Set} → Bool → A → A → A
 if true then x else y = x
 if false then x else y = y
 #+END_SRC
+
+** Practice!
+
 ** Records
 #+BEGIN_SRC haskell
 record Pair (A B : Set) : Set where
@@ -170,14 +221,14 @@ record Pair (A B : Set) : Set where
 make-pair : {A B : Set} → A → B → Pair A B
 make-pair a b = record { fst = a ; snd = b }
 
--- make-pair : {A B : Set} → A → B → Pair A B
--- make-pair a b = a , b
+make-pair : {A B : Set} → A → B → Pair A B
+make-pair a b = a , b
 
 proj₁ : {A B : Set} → Pair A B → A
 proj₁ p = Pair.fst p
 
--- proj₁ : {A B : Set} → Pair A B → A
--- proj₁ record { fst = a } = p
+proj₁ : {A B : Set} → Pair A B → A
+proj₁ record { fst = a } = p
 #+END_SRC
 ** Co-pattern matching
 #+BEGIN_SRC haskell
@@ -205,6 +256,41 @@ Pair.snd (make-pair _ y) = y
 + Reflection
 + Rewriting
 
+* Universe levels
+** Set
+The type of all boring types
++ Haskell's * (or TYPE)
+
+#+BEGIN_SRC haskell
+Bool : Set
+Nat : Set
+List Bool : Set
+#+END_SRC
+** From the Russell's paradox follows
++ The collection of all sets is not itself a set
+** This is inconsistent
+#+BEGIN_SRC haskell
+Set : Set
+#+END_SRC
+** Explicit universe levels to the rescue
+#+BEGIN_SRC haskell
+Int  : Set
+Set  : Set₁
+Set₁ : Set₂
+Set₂ : Set₃
+...
+#+END_SRC
+** Universe Polymorphism
+#+BEGIN_SRC haskell
+data List {n : Level} (A : Set n) : Set n where
+  []   : List A
+  _::_ : A → List A → List A
+
+List Nat : Set
+List Set : Set₁
+List Set₁ : Set₂
+#+END_SRC
+
 * Dependent types
 Types may depend on values!
 ** Type checking
@@ -219,7 +305,19 @@ Types may depend on values!
 ** Logic
 + First-order predicate logic extends propositional logic
 + Propositions may *depend* on terms
-+ Can be used to formalize the axioms of set theory
+** Universal quantifiers (Π-type)
+#+BEGIN_SRC haskell
+(a : A) → B
+#+END_SRC
+** An example
+#+BEGIN_SRC haskell
+p : (n : ℕ) → n >= zero
+#+end_src
+** There's already notation but...
+#+BEGIN_SRC haskell
+data Π (A : Set) (B : A → Set) : Set where
+  Λ : ((a : A) → B a) → Π A B
+#+END_SRC
 ** Existential quantifier (Σ-type)
 Dependent products
 #+BEGIN_SRC haskell
@@ -228,27 +326,10 @@ data Σ (A : Set) (B : A → Set) : Set where
 #+end_src
 ** An example
 #+BEGIN_SRC haskell
-dif : (m : ℕ) → (np : Σ ℕ (λ n → m ≥ n))
-    → Σ ℕ (λ r → m ≡ (proj₁ np) + r)
-dif zero (zero , _) = zero , refl
-dif (suc m) (zero , _) = suc m , refl
-dif (suc m) (suc n , s≤s m>=n) with dif m (n , m>=n)
-... | mn , refl = mn , refl
+dif : (m : ℕ) → (n : ℕ)
+    → m >= n
+    → Σ ℕ (λ r → m ≡ (n + r))
 #+end_src
-** Universal quantifiers (Π-type)
-An Haskell function
-#+BEGIN_SRC haskell
-a -> b
-#+END_SRC
-becomes
-#+BEGIN_SRC haskell
-(x : a) → b
-#+END_SRC
-** There's already notation but...
-#+BEGIN_SRC haskell
-data Π {A : Set} (A : Set) (B : A → Set) : Set where
-  Λ : ((a : A) → B a) → Π A B
-#+END_SRC
 
 * Quintessential example
 ** Vector
@@ -264,40 +345,6 @@ head : ∀ {n} {A : Set} → Vec A (suc n) → A
 head (x ∷ _) = x
 #+END_SRC
 
-
-* Universe levels
-** Set
-The type of all boring types
-+ Haskell's * (or TYPE)
-
-#+BEGIN_SRC haskell
-Bool : Set
-Nat : Set
-List Bool : Set
-#+END_SRC
-** From the Russell's paradox follows
-+ The collection of all sets is not itself a set
-** This is false
-#+BEGIN_SRC haskell
-Set : Set
-#+END_SRC
-** Explicit universe levels to the rescue
-#+BEGIN_SRC haskell
-Set : Set₁
-Set₁ : Set₂
-Set₂ : Set₃
-...
-#+END_SRC
-** Universe Polymorphism
-#+BEGIN_SRC haskell
-data List {n : Level} (A : Set n) : Set n where
-  []   : List A
-  _::_ : A → List A → List A
-
-List Nat : Set
-List Set : Set₁
-List Set₁ : Set₂
-#+END_SRC
 
 * Small example
 ** CP with Agda?

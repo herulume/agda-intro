@@ -5,7 +5,6 @@ open import Data.Nat
 open import Data.Bool hiding (_<?_)
 
 -- Logic
-{-
 data   False : Set where
 record True  : Set where
 
@@ -15,25 +14,17 @@ data Either (A : Set) (B : Set) : Set where
 
 data _×_ (A : Set) (B : Set) : Set where
   _,_ : A → B → A × B
--}
 
-{-
 infixr 3 ¬_
 ¬_ : Set → Set
-¬ A = ?
--}
+¬ A = A → False
 
-{-
 absurd : {X : Set} → False → X
-absurd = ?
--}
+absurd ()
 
-{-
 notCurry : ∀ {P Q R : Set} → ((Q × P) → R) → P → Q → R
-notCurry = ?
--}
+notCurry qxp->r p q = qxp->r (q , p)
 
-{-
 -- either
 [_,_] : ∀ {A B C : Set} → (A → C) → (B → C) → Either A B → C
 [ f , g ] (Left x)  = f x
@@ -42,10 +33,8 @@ notCurry = ?
 -- split
 <_,_> : ∀ {A B C : Set} → (A → B) → (A → C) → A → B × C
 < f , g > a = f a , g a
--}
 
 -- Lists
-{-
 infixr 5 _∷_
 data List (A : Set) : Set where
   []  : List A
@@ -55,22 +44,21 @@ l1 : List Bool
 l1 = true ∷ false ∷ []
 
 length : ∀ {A} → List A → ℕ
-length = ?
+length [] = zero
+length (_ ∷ l) = 1 + length l
 
 foldr : ∀ {A B : Set} → (A → B → B) → B → List A → B
 foldr f b []       = b
 foldr f b (x ∷ xs) = f x (foldr f b xs)
--}
 
 -- Dependent types
-{-
 
 data _>=_ : ℕ → ℕ → Set where
   z>= : {y : ℕ} → y >= zero
   s>= : {x y : ℕ} → x >= y → suc x >= suc y
 
 p : (n : ℕ) → n >= zero
-p = ?
+p = λ n → z>=
 
 data Σ (A : Set) (B : A → Set) : Set where
   ⟨_,_⟩ : (x : A) → B x → Σ A B
@@ -81,53 +69,41 @@ data _≡_ {A : Set} : A → A → Set where
 dif : (m : ℕ) → (n : ℕ)
     → m >= n
     → Σ ℕ (λ r → m ≡ (n + r))
-dif = ?
--}
+dif zero zero z>= = ⟨ zero , refl ⟩
+dif (suc m) zero z>= = ⟨ suc m , refl ⟩
+dif (suc m) (suc n) (s>= x) with dif m n x
+... | ⟨ dif , refl ⟩ = ⟨ dif , refl ⟩
 
-{-
 data Vec {l : Level} (A : Set l) : ℕ → Set l where
   []  : Vec A 0
   _∷_ : {n : ℕ} → A → Vec A n → Vec A (1 + n)
--}
 
-{-
 _++_ : ∀ {l} {m n} {A : Set l} → Vec A m → Vec A n → Vec A (m + n)
-_++_  = ?
--}
+[] ++ y = y
+(x ∷ xs) ++ y with xs ++ y
+... | z = x ∷ z
 
-{-
-headᵛ : ∀ {l} {A : Set l} {n : ℕ} → Vec A (succ n) → A
-headᵛ = ?
--}
+headᵛ : ∀ {l} {A : Set l} {n : ℕ} → Vec A (suc n) → A
+headᵛ (x ∷ _) = x
 
-{-
 _<₀_ : ℕ → ℕ → Bool
-n <₀ m = ?
--}
-
-{-
-_ <₀ zero = false
+n <₀ zero = false
 zero <₀ suc m = true
 suc n <₀ suc m = n <₀ m
--}
 
-{-
 isTrue : Bool → Set
 isTrue true = True
 isTrue false = False
 
 headˡ : ∀ {A} (l : List A) → isTrue (zero <₀ length l) → A
-headˡ = ? -- split list first by hand
--}
+headˡ (x₁ ∷ _) _ = x₁
 
-{-
 data _<₁_ : ℕ → ℕ → Set where
   z< : {y : ℕ} → zero <₁ suc y
   s< : {x y : ℕ} → x <₁ y → suc x <₁ suc y
 
 headˡ₁ : ∀ {A} (l : List A) → zero <₁ length l → A
 headˡ₁ (x ∷ _) z< = x
--}
 
 
 -- https://mazzo.li/posts/AgdaSort.html
